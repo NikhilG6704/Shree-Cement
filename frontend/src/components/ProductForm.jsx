@@ -8,9 +8,16 @@ function ProductForm({ addProduct }) {
   const [items, setItems] = useState([]);
 
   const handleItemCountChange = (count) => {
+    const numCount = Number(count);
+
+    if (numCount > 20) {
+      toast.error("Maximum 20 products can be added at a time");
+      return;
+    }
+
     setItemCount(count);
 
-    const newItems = Array.from({ length: Number(count) || 0 }, (_, index) => ({
+    const newItems = Array.from({ length: numCount || 0 }, (_, index) => ({
       id: index + 1,
       name: "",
       itemCode: "",
@@ -31,6 +38,15 @@ function ProductForm({ addProduct }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (Number(itemCount) > 20) {
+      toast.error("You can add a maximum of 20 products");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(prNo)) {
+      toast.error("PR Number must be exactly 10 digits");
+      return;
+    }
 
     if (!/^\d{10}$/.test(prNo)) {
       toast.error("PR Number must be exactly 10 digits");
@@ -123,6 +139,7 @@ function ProductForm({ addProduct }) {
               type="number"
               min="1"
               value={itemCount}
+              max="20"
               onChange={(e) => handleItemCountChange(e.target.value)}
               className={`w-full rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                 itemCount === ""
