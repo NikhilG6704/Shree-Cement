@@ -1,5 +1,6 @@
 node_modules
-inventory.db
-.env
+dist
+frontend/dist
 backend/inventory.db
 inventory.db
+.env

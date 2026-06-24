@@ -234,7 +234,11 @@ function Dashboard() {
       </div>
 
       {/* Table */}
-      <ProductTable products={filteredProducts} title="Inventory Assets" />
+      <ProductTable
+        products={filteredProducts}
+        title="Inventory Assets"
+        refreshProducts={loadAssets}
+      />
     </div>
   );
 }

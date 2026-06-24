@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import { Toaster } from "react-hot-toast";
 
@@ -25,7 +25,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       {/* Toast Notifications */}
       <Toaster
         position="top-right"
@@ -77,7 +77,7 @@ function App() {
           </Routes>
         </main>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

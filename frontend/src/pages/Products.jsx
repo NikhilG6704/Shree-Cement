@@ -74,7 +74,11 @@ function Products() {
     <div className="p-6">
       <ProductForm addProduct={addProduct} />
 
-      <ProductTable products={products} title="Inventory Assets" />
+      <ProductTable
+        products={products}
+        title="Inventory Assets"
+        refreshProducts={loadAssets}
+      />
     </div>
   );
 }

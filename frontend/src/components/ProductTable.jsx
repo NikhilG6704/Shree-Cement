@@ -2,7 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { markAssetDamaged } from "../services/api";
 
-function ProductTable({ products, title = "Inventory Assets" }) {
+function ProductTable({
+  products,
+  refreshProducts,
+  title = "Inventory Assets",
+}) {
   const [showDamageModal, setShowDamageModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -39,15 +43,15 @@ function ProductTable({ products, title = "Inventory Assets" }) {
 
       toast.success("Asset marked as damaged");
 
+      if (refreshProducts) {
+        await refreshProducts();
+      }
+
       setShowDamageModal(false);
 
       setDamagedBy("");
       setDepartment("");
       setDamageRemark("");
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error) {
       toast.error(error.message || "Failed to mark asset as damaged");
     }

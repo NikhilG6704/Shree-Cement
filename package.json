@@ -1,0 +1,56 @@
+{
+  "name": "local-inventory",
+  "version": "1.0.0",
+  "description": "Inventory Management Desktop Application",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron .",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-mac-app": "electron-builder --mac dir"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilG6704/Shree-Cement.git"
+  },
+  "keywords": [
+    "inventory",
+    "electron",
+    "react",
+    "express"
+  ],
+  "author": "Nikhil Gupta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NikhilG6704/Shree-Cement/issues"
+  },
+  "homepage": "https://github.com/NikhilG6704/Shree-Cement#readme",
+  "devDependencies": {
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.shreecement.inventory",
+    "productName": "Inventory Management",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/**/*",
+      "backend/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "backend/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dir",
+      "icon": "build/icon.icns"
+    }
+  }
+}
