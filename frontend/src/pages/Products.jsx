@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ProductForm from "../components/ProductForm";
 import ProductTable from "../components/ProductTable";
-
+import { isAdmin } from "../utils/auth";
 import { getAssets, createAssets } from "../services/api";
 
 function Products() {
@@ -72,7 +72,7 @@ function Products() {
 
   return (
     <div className="p-6">
-      <ProductForm addProduct={addProduct} />
+      {isAdmin() && <ProductForm addProduct={addProduct} />}
 
       <ProductTable
         products={products}

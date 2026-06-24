@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { getAssets, issueAsset } from "../services/api";
 import toast from "react-hot-toast";
+import AssetSearchFilters from "./IssueFormHelper/AssetSearchFilters";
+import AssetSelectionList from "./IssueFormHelper/AssetSelectionList";
+import SelectedAssetCard from "./IssueFormHelper/SelectedAssetCard";
+import IssueDetailsForm from "./IssueFormHelper/IssueDetailsForm";
 function IssueForm({ refreshIssuedAssets }) {
   const [assets, setAssets] = useState([]);
 
@@ -101,161 +105,36 @@ function IssueForm({ refreshIssuedAssets }) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Search Filters */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <input
-            type="text"
-            placeholder="Search Name"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-            className="border rounded-lg p-3"
-          />
-
-          <input
-            type="text"
-            placeholder="Search Item Code"
-            value={itemCodeFilter}
-            onChange={(e) => setItemCodeFilter(e.target.value)}
-            className="border rounded-lg p-3"
-          />
-
-          <input
-            type="text"
-            placeholder="Search Serial Number"
-            value={serialFilter}
-            onChange={(e) => setSerialFilter(e.target.value)}
-            className="border rounded-lg p-3"
-          />
-
-          <input
-            type="text"
-            placeholder="Search Description"
-            value={descriptionFilter}
-            onChange={(e) => setDescriptionFilter(e.target.value)}
-            className="border rounded-lg p-3"
-          />
-        </div>
+        <AssetSearchFilters
+          nameFilter={nameFilter}
+          setNameFilter={setNameFilter}
+          itemCodeFilter={itemCodeFilter}
+          setItemCodeFilter={setItemCodeFilter}
+          serialFilter={serialFilter}
+          setSerialFilter={setSerialFilter}
+          descriptionFilter={descriptionFilter}
+          setDescriptionFilter={setDescriptionFilter}
+        />
 
         {/* Asset Results */}
-        <div className="border rounded-lg max-h-80 overflow-y-auto">
-          {filteredAssets.length === 0 ? (
-            <div className="p-4 text-gray-500">No matching assets found</div>
-          ) : (
-            filteredAssets.map((asset) => (
-              <button
-                key={asset.id}
-                type="button"
-                onClick={() => {
-                  setAssetId(asset.id);
-                  setSelectedAsset(asset);
-                }}
-                className={`w-full text-left p-4 border-b hover:bg-gray-50 transition ${
-                  selectedAsset?.id === asset.id
-                    ? "bg-blue-50 border-blue-300"
-                    : ""
-                }`}
-              >
-                <div className="font-semibold text-gray-800">
-                  {asset.item_name}
-                </div>
-
-                <div className="text-blue-600 text-sm">
-                  {asset.item_code} • {asset.serial_number}
-                </div>
-
-                <div className="text-gray-500 text-sm mt-1">
-                  {asset.description || "No description available"}
-                </div>
-
-                <div className="mt-2">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      asset.is_ilms
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    ILMS: {asset.is_ilms ? "Yes" : "No"}
-                  </span>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
+        <AssetSelectionList
+          filteredAssets={filteredAssets}
+          selectedAsset={selectedAsset}
+          setSelectedAsset={setSelectedAsset}
+          setAssetId={setAssetId}
+        />
 
         {/* Selected Asset */}
-        {selectedAsset && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-900 mb-3">Selected Asset</h3>
-
-            <div className="grid md:grid-cols-2 gap-3 text-sm">
-              <div>
-                <strong>Name:</strong> {selectedAsset.item_name}
-              </div>
-
-              <div>
-                <strong>Item Code:</strong> {selectedAsset.item_code}
-              </div>
-
-              <div>
-                <strong>Serial Number:</strong> {selectedAsset.serial_number}
-              </div>
-
-              <div>
-                <strong>ILMS:</strong> {selectedAsset.is_ilms ? "Yes" : "No"}
-              </div>
-
-              <div className="md:col-span-2">
-                <strong>Description:</strong>{" "}
-                {selectedAsset.description || "N/A"}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Issued To */}
-        <div>
-          <label className="block mb-2 font-medium text-gray-700">
-            Issued To <span className="text-red-500">*</span>
-          </label>
-
-          <input
-            type="text"
-            value={issuedTo}
-            onChange={(e) => setIssuedTo(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            placeholder="Enter employee name"
-            required
-          />
-        </div>
-
-        {/* Department */}
-        <div>
-          <label className="block mb-2 font-medium text-gray-700">
-            Department <span className="text-red-500">*</span>
-          </label>
-
-          <input
-            type="text"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            className="w-full border rounded-lg p-3"
-            placeholder="Enter department"
-            required
-          />
-        </div>
-
-        {/* Remark */}
-        <div>
-          <label className="block mb-2 font-medium text-gray-700">Remark</label>
-
-          <textarea
-            value={remark}
-            onChange={(e) => setRemark(e.target.value)}
-            rows="4"
-            className="w-full border rounded-lg p-3"
-            placeholder="Optional remarks"
-          />
-        </div>
+        <SelectedAssetCard selectedAsset={selectedAsset} />
+        {/* Issued Asset */}
+        <IssueDetailsForm
+          issuedTo={issuedTo}
+          setIssuedTo={setIssuedTo}
+          department={department}
+          setDepartment={setDepartment}
+          remark={remark}
+          setRemark={setRemark}
+        />
 
         <button
           type="submit"

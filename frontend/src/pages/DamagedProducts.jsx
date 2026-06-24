@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FileSpreadsheet } from "lucide-react";
 import { getDamagedAssets } from "../services/api";
+import { exportToExcel } from "../utils/exportToExcel";
 
 function DamagedProducts() {
   const [damagedAssets, setDamagedAssets] = useState([]);
@@ -22,6 +24,20 @@ function DamagedProducts() {
     }
   };
 
+  const handleExportDamaged = () => {
+    const exportData = damagedAssets.map((item) => ({
+      Asset: item.item_name,
+      Item_Code: item.item_code,
+      Serial_Number: item.serial_number,
+      Damaged_By: item.damaged_by,
+      Department: item.department,
+      Damage_Date: item.damaged_date,
+      Remark: item.damage_remark,
+    }));
+
+    exportToExcel(exportData, "Damaged_Assets");
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -33,14 +49,34 @@ function DamagedProducts() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Damaged Assets History
-          </h2>
+        {/* Header */}
+        <div className="px-6 py-4 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800">
+              Damaged Assets History
+            </h2>
 
-          <p className="text-gray-500 mt-1">
-            Total Damaged Assets: {damagedAssets.length}
-          </p>
+            <p className="text-gray-500 mt-1">
+              Total Damaged Assets: {damagedAssets.length}
+            </p>
+          </div>
+
+          <button
+            onClick={handleExportDamaged}
+            className="
+              flex items-center gap-2
+              bg-green-600 hover:bg-green-700
+              hover:scale-105
+              text-white
+              px-5 py-2.5
+              rounded-xl
+              shadow-md
+              transition-all duration-200
+            "
+          >
+            <FileSpreadsheet size={20} />
+            Export Excel
+          </button>
         </div>
 
         {damagedAssets.length === 0 ? (

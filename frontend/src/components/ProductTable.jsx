@@ -1,6 +1,9 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { markAssetDamaged } from "../services/api";
+import { isAdmin } from "../utils/auth";
+
+import DamageModal from "./ProductTableHelper/DamageModal";
+import DeleteModal from "./ProductTableHelper/DeleteModal";
+import AssetRow from "./ProductTableHelper/AssetRow";
 
 function ProductTable({
   products,
@@ -9,10 +12,10 @@ function ProductTable({
 }) {
   const [showDamageModal, setShowDamageModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [activeMenu, setActiveMenu] = useState(null);
 
-  const [damagedBy, setDamagedBy] = useState("");
-  const [department, setDepartment] = useState("");
-  const [damageRemark, setDamageRemark] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [assetToDelete, setAssetToDelete] = useState(null);
 
   const allItems = products.flatMap((product) =>
     product.items.map((item) => ({
@@ -21,41 +24,6 @@ function ProductTable({
       poNo: product.poNo,
     })),
   );
-
-  const handleDamageSubmit = async () => {
-    if (!damagedBy.trim()) {
-      toast.error("Please enter Damaged By");
-      return;
-    }
-
-    if (!department.trim()) {
-      toast.error("Please enter Department");
-      return;
-    }
-
-    try {
-      await markAssetDamaged({
-        assetId: selectedItem.id,
-        damagedBy,
-        department,
-        damageRemark,
-      });
-
-      toast.success("Asset marked as damaged");
-
-      if (refreshProducts) {
-        await refreshProducts();
-      }
-
-      setShowDamageModal(false);
-
-      setDamagedBy("");
-      setDepartment("");
-      setDamageRemark("");
-    } catch (error) {
-      toast.error(error.message || "Failed to mark asset as damaged");
-    }
-  };
 
   return (
     <>
@@ -79,7 +47,9 @@ function ProductTable({
                   <th className="p-4 text-left">Item Code</th>
                   <th className="p-4 text-left">Description</th>
                   <th className="p-4 text-left">Serial Number</th>
-                  <th className="p-4 text-left">Date Added</th>
+                  <th className="p-4 text-left whitespace-nowrap">
+                    Date Added
+                  </th>
                   <th className="p-4 text-left">ILMS</th>
                   <th className="p-4 text-left">Status</th>
                   <th className="p-4 text-left">Action</th>
@@ -88,73 +58,22 @@ function ProductTable({
 
               <tbody>
                 {allItems.map((item, index) => (
-                  <tr
+                  <AssetRow
                     key={`${item.serialNumber}-${index}`}
-                    className="border-b hover:bg-gray-50 transition"
-                  >
-                    <td className="p-4 font-medium">{item.prNo}</td>
-
-                    <td className="p-4">{item.poNo || "-"}</td>
-
-                    <td className="p-4">{item.name}</td>
-
-                    <td className="p-4">{item.itemCode}</td>
-
-                    <td
-                      className="p-4 max-w-[250px] truncate"
-                      title={item.description}
-                    >
-                      {item.description || "-"}
-                    </td>
-
-                    <td className="p-4 font-mono">{item.serialNumber}</td>
-
-                    <td className="p-4">{item.dateAdded}</td>
-
-                    <td className="p-4">
-                      {item.isILMS === "Yes" ? (
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                          Yes
-                        </span>
-                      ) : (
-                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                          No
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          item.status === "Available"
-                            ? "bg-green-100 text-green-700"
-                            : item.status === "Issued"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : item.status === "Damaged"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-
-                    <td className="p-4">
-                      {item.status === "Available" ? (
-                        <button
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setShowDamageModal(true);
-                          }}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm"
-                        >
-                          Mark Damaged
-                        </button>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  </tr>
+                    item={item}
+                    index={index}
+                    isAdminUser={isAdmin()}
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
+                    onDamage={() => {
+                      setSelectedItem(item);
+                      setShowDamageModal(true);
+                    }}
+                    onDelete={() => {
+                      setAssetToDelete(item);
+                      setShowDeleteModal(true);
+                    }}
+                  />
                 ))}
               </tbody>
             </table>
@@ -162,85 +81,20 @@ function ProductTable({
         )}
       </div>
 
-      {/* Damage Modal */}
-      {showDamageModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
-            <h2 className="text-2xl font-bold mb-2 text-gray-800">
-              Mark Asset Damaged
-            </h2>
+      <DamageModal
+        showDamageModal={showDamageModal}
+        setShowDamageModal={setShowDamageModal}
+        selectedItem={selectedItem}
+        refreshProducts={refreshProducts}
+      />
 
-            <div className="mb-6 p-3 bg-gray-50 rounded-lg border">
-              <p className="font-semibold text-lg">{selectedItem?.name}</p>
-
-              <p className="text-sm text-gray-600">
-                {selectedItem?.itemCode} • {selectedItem?.serialNumber}
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-2 font-medium">
-                Damaged By <span className="text-red-500">*</span>
-              </label>
-
-              <input
-                type="text"
-                value={damagedBy}
-                onChange={(e) => setDamagedBy(e.target.value)}
-                placeholder="Enter employee name"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-2 font-medium">
-                Department <span className="text-red-500">*</span>
-              </label>
-
-              <input
-                type="text"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                placeholder="Enter department"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="mb-6">
-              <label className="block mb-2 font-medium">Damage Remark</label>
-
-              <textarea
-                value={damageRemark}
-                onChange={(e) => setDamageRemark(e.target.value)}
-                rows="4"
-                placeholder="Describe the damage"
-                className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDamageModal(false);
-                  setDamagedBy("");
-                  setDepartment("");
-                  setDamageRemark("");
-                }}
-                className="px-5 py-2 border rounded-lg hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleDamageSubmit}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg"
-              >
-                Mark Damaged
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteModal
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        assetToDelete={assetToDelete}
+        setAssetToDelete={setAssetToDelete}
+        refreshProducts={refreshProducts}
+      />
     </>
   );
 }

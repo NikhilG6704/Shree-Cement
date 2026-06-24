@@ -5,14 +5,19 @@ const assetRoutes = require("./routes/assets");
 const db = require("./database/db");
 const issueRoutes = require("./routes/issues");
 const damagedRoutes = require("./routes/damaged");
+const authRoutes = require("./routes/auth");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const schema = fs.readFileSync("./database/schema.sql", "utf8");
-
-db.exec(schema);
+try {
+  const schema = fs.readFileSync("./database/schema.sql", "utf8");
+  db.exec(schema);
+  console.log("Database schema loaded");
+} catch (error) {
+  console.error("Schema initialization error:", error.message);
+}
 
 app.get("/", (req, res) => {
   res.json({
@@ -23,6 +28,7 @@ app.get("/", (req, res) => {
 app.use("/api/assets", assetRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/damaged", damagedRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = 8000;
 

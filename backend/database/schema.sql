@@ -71,5 +71,17 @@ CREATE TABLE IF NOT EXISTS damaged_assets (
     damage_remark TEXT,
 
     FOREIGN KEY(asset_id)
-        REFERENCES assets(id)
+    REFERENCES assets(id)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL
+);
+
+INSERT OR IGNORE INTO users (username, password, role)
+VALUES
+('admin', 'admin123', 'admin'),
+('viewer', 'viewer123', 'viewer');

@@ -107,3 +107,17 @@ export const markAssetDamaged = async (data) => {
 
   return result;
 };
+
+export const deleteAsset = async (id) => {
+  const response = await fetch(`http://localhost:8000/api/assets/${id}`, {
+    method: "DELETE",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error);
+  }
+
+  return data;
+};

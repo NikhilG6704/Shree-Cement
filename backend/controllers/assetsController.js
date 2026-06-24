@@ -96,7 +96,29 @@ const createAssets = (req, res) => {
   }
 };
 
+const deleteAsset = (req, res) => {
+  try {
+    const { id } = req.params;
+
+    db.prepare(`DELETE FROM damaged_assets WHERE asset_id = ?`).run(id);
+
+    db.prepare(`DELETE FROM issue_history WHERE asset_id = ?`).run(id);
+
+    db.prepare(`DELETE FROM assets WHERE id = ?`).run(id);
+
+    res.json({
+      message: "Asset deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   getAllAssets,
   createAssets,
+  deleteAsset,
 };
