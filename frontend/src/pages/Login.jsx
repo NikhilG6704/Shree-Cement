@@ -34,7 +34,7 @@ function Login() {
         throw new Error(data.message);
       }
 
-      localStorage.setItem("user", JSON.stringify(data));
+      sessionStorage.setItem("user", JSON.stringify(data));
 
       toast.success(`Welcome ${data.username}`);
 

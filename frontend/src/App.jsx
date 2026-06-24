@@ -15,7 +15,7 @@ function App() {
   const [issuedProducts, setIssuedProducts] = useState([]);
   const [returnedProducts, setReturnedProducts] = useState([]);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   const issueProduct = (issue) => {
     setIssuedProducts((prev) => [...prev, issue]);

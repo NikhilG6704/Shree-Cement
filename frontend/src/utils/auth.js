@@ -1,5 +1,5 @@
 export const getCurrentUser = () => {
-  return JSON.parse(localStorage.getItem("user"));
+  return JSON.parse(sessionStorage.getItem("user"));
 };
 
 export const isAdmin = () => {

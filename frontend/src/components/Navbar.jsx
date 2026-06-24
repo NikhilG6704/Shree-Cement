@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { isAdmin } from "../utils/auth.js";
+
 function Navbar() {
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   const linkClass = ({ isActive }) =>
     `block px-4 py-3 rounded-lg transition-all duration-200 ${
@@ -13,8 +14,10 @@ function Navbar() {
     }`;
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+
     navigate("/login");
+
     window.location.reload();
   };
 
@@ -54,7 +57,7 @@ function Navbar() {
 
       <button
         onClick={handleLogout}
-        className="mt-8 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
+        className="mt-8 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition-all duration-200"
       >
         Logout
       </button>
