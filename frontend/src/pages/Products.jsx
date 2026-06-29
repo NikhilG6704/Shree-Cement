@@ -22,6 +22,10 @@ function Products() {
 
       grouped[asset.pr_no].items.push({
         id: asset.id,
+
+        prNo: asset.pr_no,
+        poNo: asset.po_no,
+
         name: asset.item_name,
         itemCode: asset.item_code,
         description: asset.description,

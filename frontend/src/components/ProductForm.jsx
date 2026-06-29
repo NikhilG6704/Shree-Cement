@@ -44,10 +44,17 @@ function ProductForm({ addProduct }) {
       return;
     }
 
+    // Convert blank serial numbers to N/A
+    const processedItems = items.map((item) => ({
+      ...item,
+      serialNumber:
+        item.serialNumber?.trim() === "" ? "N/A" : item.serialNumber.trim(),
+    }));
+
     addProduct({
       prNo,
       poNo,
-      items,
+      items: processedItems,
     });
 
     toast.success("Products added successfully");

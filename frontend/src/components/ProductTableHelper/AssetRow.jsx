@@ -4,14 +4,12 @@ function AssetRow({
   isAdminUser,
   activeMenu,
   setActiveMenu,
+  onEdit,
   onDamage,
   onDelete,
 }) {
   return (
-    <tr
-      key={`${item.serialNumber}-${index}`}
-      className="border-b hover:bg-gray-50 transition"
-    >
+    <tr className="border-b hover:bg-gray-50 transition">
       <td className="p-4 font-medium">{item.prNo}</td>
 
       <td className="p-4">{item.poNo || "-"}</td>
@@ -24,7 +22,7 @@ function AssetRow({
         {item.description || "-"}
       </td>
 
-      <td className="p-4 font-mono">{item.serialNumber}</td>
+      <td className="p-4 font-mono">{item.serialNumber || "N/A"}</td>
 
       <td className="p-4 whitespace-nowrap">{item.dateAdded}</td>
 
@@ -61,45 +59,57 @@ function AssetRow({
           <div className="relative">
             <button
               onClick={() =>
-                setActiveMenu(
-                  activeMenu === item.serialNumber ? null : item.serialNumber,
-                )
+                setActiveMenu(activeMenu === item.id ? null : item.id)
               }
               className="
                 bg-slate-800
                 hover:bg-slate-900
-                hover:scale-105
-                active:scale-95
-                transition-all
-                duration-200
                 text-white
                 px-3
                 py-2
                 rounded-lg
                 text-sm
                 shadow-md
+                transition-all
               "
             >
               Actions ▼
             </button>
 
-            {activeMenu === item.serialNumber && (
+            {activeMenu === item.id && (
               <div
                 className="
                   absolute
                   right-0
-                  top-full
-                  mt-2
-                  w-44
+                  top-12
+                  w-48
                   bg-white
                   border
                   border-gray-200
                   rounded-xl
-                  shadow-xl
+                  shadow-2xl
                   overflow-hidden
-                  z-50
+                  z-[9999]
                 "
               >
+                <button
+                  onClick={() => {
+                    setActiveMenu(null);
+                    onEdit();
+                  }}
+                  className="
+                    w-full
+                    text-left
+                    px-4
+                    py-3
+                    text-blue-600
+                    hover:bg-blue-50
+                    transition-all
+                  "
+                >
+                  Edit Asset
+                </button>
+
                 {item.status === "Available" && (
                   <button
                     onClick={() => {
@@ -113,9 +123,7 @@ function AssetRow({
                       py-3
                       text-red-600
                       hover:bg-red-50
-                      hover:pl-6
                       transition-all
-                      duration-200
                     "
                   >
                     Mark Damaged
@@ -132,10 +140,9 @@ function AssetRow({
                     text-left
                     px-4
                     py-3
+                    text-gray-700
                     hover:bg-gray-100
-                    hover:pl-6
                     transition-all
-                    duration-200
                   "
                 >
                   Delete Asset

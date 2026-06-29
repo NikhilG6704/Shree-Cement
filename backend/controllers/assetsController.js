@@ -1,5 +1,8 @@
 const db = require("../database/db");
 
+/* =========================
+   GET ALL ASSETS
+========================= */
 const getAllAssets = (req, res) => {
   try {
     const assets = db
@@ -26,6 +29,9 @@ const getAllAssets = (req, res) => {
   }
 };
 
+/* =========================
+   CREATE ASSETS
+========================= */
 const createAssets = (req, res) => {
   try {
     const { prNo, poNo, items } = req.body;
@@ -42,7 +48,6 @@ const createAssets = (req, res) => {
       });
     }
 
-    // Create PR
     const prStmt = db.prepare(`
       INSERT INTO pr_master (
         pr_no,
@@ -56,7 +61,6 @@ const createAssets = (req, res) => {
 
     const prId = prResult.lastInsertRowid;
 
-    // Asset Insert Statement
     const assetStmt = db.prepare(`
       INSERT INTO assets (
         pr_id,
@@ -72,12 +76,38 @@ const createAssets = (req, res) => {
     `);
 
     for (const item of items) {
+      let serialNumber = item.serialNumber?.trim();
+
+      if (
+        !serialNumber ||
+        serialNumber.toLowerCase() === "n/a" ||
+        serialNumber.toLowerCase() === "na"
+      ) {
+        serialNumber = "N/A";
+      } else {
+        const duplicate = db
+          .prepare(
+            `
+      SELECT id
+      FROM assets
+      WHERE serial_number = ?
+    `,
+          )
+          .get(serialNumber);
+
+        if (duplicate) {
+          return res.status(400).json({
+            error: `Serial Number "${serialNumber}" already exists`,
+          });
+        }
+      }
+
       assetStmt.run(
         prId,
         item.name,
         item.itemCode,
         item.description,
-        item.serialNumber,
+        serialNumber,
         item.isILMS === "Yes" ? 1 : 0,
         item.dateAdded,
         "Available",
@@ -96,15 +126,130 @@ const createAssets = (req, res) => {
   }
 };
 
+/* =========================
+   UPDATE ASSET
+========================= */
+const updateAsset = (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      prNo,
+      poNo,
+      item_name,
+      item_code,
+      description,
+      serial_number,
+      is_ilms,
+    } = req.body;
+
+    const asset = db
+      .prepare(
+        `
+        SELECT *
+        FROM assets
+        WHERE id = ?
+      `,
+      )
+      .get(id);
+
+    if (!asset) {
+      return res.status(404).json({
+        error: "Asset not found",
+      });
+    }
+
+    let finalSerial = serial_number?.trim();
+
+    if (
+      !finalSerial ||
+      finalSerial.toLowerCase() === "n/a" ||
+      finalSerial.toLowerCase() === "na"
+    ) {
+      finalSerial = "N/A";
+    }
+
+    if (finalSerial !== "N/A") {
+      const duplicateSerial = db
+        .prepare(
+          `
+      SELECT id
+      FROM assets
+      WHERE serial_number = ?
+      AND id != ?
+    `,
+        )
+        .get(finalSerial, id);
+
+      if (duplicateSerial) {
+        return res.status(400).json({
+          error: "Serial Number already exists",
+        });
+      }
+    }
+
+    db.prepare(
+      `
+      UPDATE assets
+      SET
+        item_name = ?,
+        item_code = ?,
+        description = ?,
+        serial_number = ?,
+        is_ilms = ?
+      WHERE id = ?
+    `,
+    ).run(item_name, item_code, description, finalSerial, is_ilms ? 1 : 0, id);
+
+    db.prepare(
+      `
+      UPDATE pr_master
+      SET
+        pr_no = ?,
+        po_no = ?
+      WHERE id = ?
+    `,
+    ).run(prNo, poNo, asset.pr_id);
+
+    res.json({
+      message: "Asset updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+/* =========================
+   DELETE ASSET
+========================= */
 const deleteAsset = (req, res) => {
   try {
     const { id } = req.params;
 
-    db.prepare(`DELETE FROM damaged_assets WHERE asset_id = ?`).run(id);
+    db.prepare(
+      `
+      DELETE FROM damaged_assets
+      WHERE asset_id = ?
+    `,
+    ).run(id);
 
-    db.prepare(`DELETE FROM issue_history WHERE asset_id = ?`).run(id);
+    db.prepare(
+      `
+      DELETE FROM issue_history
+      WHERE asset_id = ?
+    `,
+    ).run(id);
 
-    db.prepare(`DELETE FROM assets WHERE id = ?`).run(id);
+    db.prepare(
+      `
+      DELETE FROM assets
+      WHERE id = ?
+    `,
+    ).run(id);
 
     res.json({
       message: "Asset deleted successfully",
@@ -117,8 +262,10 @@ const deleteAsset = (req, res) => {
     });
   }
 };
+
 module.exports = {
   getAllAssets,
   createAssets,
+  updateAsset,
   deleteAsset,
 };

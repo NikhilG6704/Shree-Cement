@@ -121,3 +121,21 @@ export const deleteAsset = async (id) => {
 
   return data;
 };
+
+export const updateAsset = async (id, data) => {
+  const response = await fetch(`${API_URL}/assets/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || "Failed to update asset");
+  }
+
+  return result;
+};

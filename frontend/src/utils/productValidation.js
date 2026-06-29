@@ -17,7 +17,7 @@ export const validateProductForm = (prNo, itemCount, items) => {
   }
 
   for (const item of items) {
-    if (!item.name || !item.itemCode || !item.serialNumber || !item.dateAdded) {
+    if (!item.name?.trim() || !item.itemCode?.trim() || !item.dateAdded) {
       toast.error("Please fill all required item fields");
       return false;
     }

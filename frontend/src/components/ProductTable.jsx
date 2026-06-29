@@ -4,6 +4,7 @@ import { isAdmin } from "../utils/auth";
 import DamageModal from "./ProductTableHelper/DamageModal";
 import DeleteModal from "./ProductTableHelper/DeleteModal";
 import AssetRow from "./ProductTableHelper/AssetRow";
+import EditModal from "./ProductTableHelper/EditModal";
 
 function ProductTable({
   products,
@@ -14,7 +15,7 @@ function ProductTable({
   const [showDamageModal, setShowDamageModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
-
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState(null);
 
@@ -76,6 +77,10 @@ function ProductTable({
                     isAdminUser={isAdmin()}
                     activeMenu={activeMenu}
                     setActiveMenu={setActiveMenu}
+                    onEdit={() => {
+                      setSelectedItem(item);
+                      setShowEditModal(true);
+                    }}
                     onDamage={() => {
                       setSelectedItem(item);
                       setShowDamageModal(true);
@@ -95,6 +100,12 @@ function ProductTable({
       <DamageModal
         showDamageModal={showDamageModal}
         setShowDamageModal={setShowDamageModal}
+        selectedItem={selectedItem}
+        refreshProducts={refreshProducts}
+      />
+      <EditModal
+        showEditModal={showEditModal}
+        setShowEditModal={setShowEditModal}
         selectedItem={selectedItem}
         refreshProducts={refreshProducts}
       />

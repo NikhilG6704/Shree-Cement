@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS assets (
     item_code TEXT NOT NULL,
     description TEXT,
 
-    serial_number TEXT UNIQUE NOT NULL,
+    serial_number TEXT NOT NULL,
 
     is_ilms INTEGER DEFAULT 0,
 
