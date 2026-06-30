@@ -13,6 +13,7 @@ function EditModal({
     poNo: "",
     item_name: "",
     item_code: "",
+    quantity: 1,
     description: "",
     serial_number: "",
     is_ilms: true,
@@ -25,6 +26,9 @@ function EditModal({
         poNo: selectedItem.poNo || "",
         item_name: selectedItem.name || "",
         item_code: selectedItem.itemCode || "",
+
+        quantity: selectedItem.quantity || 1,
+
         description: selectedItem.description || "",
         serial_number: selectedItem.serialNumber || "",
         is_ilms: selectedItem.isILMS === "Yes",
@@ -49,6 +53,10 @@ function EditModal({
       toast.error("Item Code is required");
       return;
     }
+    if (!form.quantity || Number(form.quantity) < 1) {
+      toast.error("Quantity must be at least 1");
+      return;
+    }
 
     let finalSerial = form.serial_number.trim();
 
@@ -59,6 +67,7 @@ function EditModal({
     try {
       await updateAsset(selectedItem.id, {
         ...form,
+        quantity: Number(form.quantity),
         serial_number: finalSerial,
       });
 
@@ -199,6 +208,33 @@ function EditModal({
                 focus:ring-blue-500
                 focus:outline-none
               "
+            />
+          </div>
+          {/* Quantity */}
+          <div>
+            <label className="block mb-2 font-medium">
+              Quantity <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="number"
+              min="1"
+              value={form.quantity}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  quantity: Number(e.target.value),
+                })
+              }
+              className="
+      w-full
+      border
+      rounded-lg
+      p-3
+      focus:ring-2
+      focus:ring-blue-500
+      focus:outline-none
+    "
             />
           </div>
 
